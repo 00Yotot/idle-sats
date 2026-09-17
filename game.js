@@ -1,79 +1,118 @@
-// 1. CONFIGURATION
+// CONFIGURATION
 const SUPABASE_URL = 'https://jzzzzeqphxwvrlqwiget.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imppenp6ZXFwaHh3dnJscXdpZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTQ3ODEsImV4cCI6MjEwNTIzMDc4MX0.WdBYOYAXovbLllH9MEoBsNjcYmOQ6wxV4unOWzbEMAc';
 
-let supabase = null;
-let state = { user: null, sats: 0, level: 1, rate: 1, cost: 50 };
+// Memory Storage Adapter to bypass Browser Tracking Prevention
+const memoryStorage = (() => {
+  let store = {};
+  return {
+    getItem: (key) => store[key] || null,
+    setItem: (key, value) => { store[key] = value.toString(); },
+    removeItem: (key) => { delete store[key]; },
+    clear: () => { store = {}; }
+  };
+})();
 
-// 2. SAFE INITIALIZATION
+var supabaseClient = null;
+var gameState = { user: null, sats: 0, level: 1, rate: 1, cost: 50 };
+
+// INITIALIZATION
 window.onload = async () => {
   try {
     if (window.supabase && window.supabase.createClient) {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session && session.user) {
-        handleLoginSuccess(session.user);
-        return;
-      }
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+          storage: memoryStorage,
+          persistSession: false
+        }
+      });
+    } else {
+      alert("Supabase CDN failed to load. Check your adblocker or tracking protection settings.");
     }
   } catch (err) {
-    console.error("Auth init error:", err);
+    console.error("Init error:", err);
   }
   showAuthScreen();
 };
 
-// 3. AUTHENTICATION
+// AUTHENTICATION
 async function handleSignUp() {
-  if (!supabase) return alert("Database client not ready yet. Please wait 2 seconds and try again.");
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value.trim();
   const authStatus = document.getElementById('authStatus');
-  
-  if (!email || !password) { authStatus.innerText = 'Enter email & password.'; return; }
+
+  if (!email || !password) { 
+    alert("Please enter both email and password."); 
+    return; 
+  }
+
+  if (!supabaseClient) {
+    alert("Database client is not ready. Try disabling tracking protection for this site.");
+    return;
+  }
+
   authStatus.innerText = 'Creating account...';
-  
-  const { data, error } = await supabase.auth.signUp({ email, password });
-  if (error) { 
-    authStatus.innerText = 'Error: ' + error.message; 
-  } else if (data.user) {
-    if (data.session === null) {
-      authStatus.innerText = 'Account created! Logging in...';
-      handleLogin();
-    } else {
-      handleLoginSuccess(data.user);
+
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+    if (error) { 
+      alert("Sign up error: " + error.message);
+      authStatus.innerText = 'Error: ' + error.message; 
+    } else if (data.user) {
+      if (data.session === null) {
+        alert("Account created! Logging you in...");
+        handleLogin();
+      } else {
+        handleLoginSuccess(data.user);
+      }
     }
+  } catch (err) {
+    alert("Unexpected error: " + err.message);
   }
 }
 
 async function handleLogin() {
-  if (!supabase) return alert("Database client not ready yet. Please wait 2 seconds and try again.");
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value.trim();
   const authStatus = document.getElementById('authStatus');
-  
-  if (!email || !password) { authStatus.innerText = 'Enter email & password.'; return; }
+
+  if (!email || !password) { 
+    alert("Please enter both email and password."); 
+    return; 
+  }
+
+  if (!supabaseClient) {
+    alert("Database client is not ready.");
+    return;
+  }
+
   authStatus.innerText = 'Logging in...';
-  
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) { 
-    authStatus.innerText = 'Login failed: ' + error.message; 
-  } else if (data.user) {
-    authStatus.innerText = '';
-    handleLoginSuccess(data.user);
+
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) { 
+      alert("Login error: " + error.message);
+      authStatus.innerText = 'Login failed: ' + error.message; 
+    } else if (data.user) {
+      authStatus.innerText = '';
+      handleLoginSuccess(data.user);
+    }
+  } catch (err) {
+    alert("Unexpected error: " + err.message);
   }
 }
 
 async function handleLogout() {
-  if (supabase) {
+  if (supabaseClient) {
     await savePlayerData();
-    await supabase.auth.signOut();
+    await supabaseClient.auth.signOut();
   }
-  state.user = null;
+  gameState.user = null;
   showAuthScreen();
 }
 
 function handleLoginSuccess(user) {
-  state.user = user;
+  gameState.user = user;
   document.getElementById('userEmail').innerText = user.email;
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('gameScreen').style.display = 'block';
@@ -89,18 +128,18 @@ function showAuthScreen() {
   document.getElementById('gameScreen').style.display = 'none';
 }
 
-// 4. GAMEPLAY ACTIONS
+// GAMEPLAY ACTIONS
 function mineSats() {
-  state.sats += 10;
+  gameState.sats += 10;
   updateUI();
 }
 
 function buyUpgrade() {
-  if (state.sats >= state.cost) {
-    state.sats -= state.cost;
-    state.level += 1;
-    state.rate += 1;
-    state.cost = Math.floor(state.cost * 1.5);
+  if (gameState.sats >= gameState.cost) {
+    gameState.sats -= gameState.cost;
+    gameState.level += 1;
+    gameState.rate += 1;
+    gameState.cost = Math.floor(gameState.cost * 1.5);
     updateUI();
     savePlayerData();
   } else { 
@@ -109,7 +148,7 @@ function buyUpgrade() {
 }
 
 function claimDailyBonus() {
-  state.sats += 100;
+  gameState.sats += 100;
   const btn = document.getElementById('daily');
   if (btn) {
     btn.disabled = true;
@@ -121,7 +160,7 @@ function claimDailyBonus() {
 
 function resetGame() {
   if (confirm('Reset all progress?')) {
-    state.sats = 0; state.level = 1; state.rate = 1; state.cost = 50;
+    gameState.sats = 0; gameState.level = 1; gameState.rate = 1; gameState.cost = 50;
     const btn = document.getElementById('daily');
     if (btn) {
       btn.disabled = false; 
@@ -138,13 +177,13 @@ function showAd() {
 
 function completeAd() {
   document.getElementById('adOverlay').style.display = 'none';
-  state.sats += 50;
+  gameState.sats += 50;
   updateUI(); 
   savePlayerData();
 }
 
 function gameLoop() { 
-  state.sats += state.rate; 
+  gameState.sats += gameState.rate; 
   updateUI(); 
 }
 
@@ -155,33 +194,33 @@ function animateProgressBar() {
   if (bar) bar.style.width = progressWidth + '%';
 }
 
-// 5. DATABASE SYNC
+// DATABASE SYNC
 function updateUI() {
   const elSats = document.getElementById('sats');
   const elRate = document.getElementById('rate');
   const elLevel = document.getElementById('level');
   const elCost = document.getElementById('cost');
 
-  if (elSats) elSats.innerText = Math.floor(state.sats);
-  if (elRate) elRate.innerText = state.rate;
-  if (elLevel) elLevel.innerText = state.level;
-  if (elCost) elCost.innerText = state.cost;
+  if (elSats) elSats.innerText = Math.floor(gameState.sats);
+  if (elRate) elRate.innerText = gameState.rate;
+  if (elLevel) elLevel.innerText = gameState.level;
+  if (elCost) elCost.innerText = gameState.cost;
 }
 
 async function loadPlayerData() {
-  if (!state.user || !supabase) return;
-  const { data } = await supabase.from('players').select('*').eq('user_id', state.user.id).single();
+  if (!gameState.user || !supabaseClient) return;
+  const { data } = await supabaseClient.from('players').select('*').eq('user_id', gameState.user.id).single();
   
   if (data) {
-    state.sats = data.sats || 0;
-    state.level = data.level || 1;
-    state.rate = data.rate || 1;
-    state.cost = data.cost || 50;
+    gameState.sats = data.sats || 0;
+    gameState.level = data.level || 1;
+    gameState.rate = data.rate || 1;
+    gameState.cost = data.cost || 50;
     if (data.updated_at) {
       const secondsOffline = Math.floor((Date.now() - new Date(data.updated_at).getTime()) / 1000);
       if (secondsOffline > 10) {
-        const offlineEarnings = secondsOffline * state.rate;
-        state.sats += offlineEarnings;
+        const offlineEarnings = secondsOffline * gameState.rate;
+        gameState.sats += offlineEarnings;
         const elOff = document.getElementById('offline');
         if (elOff) elOff.innerText = 'Earned ' + offlineEarnings + ' sats while offline!';
       }
@@ -193,13 +232,13 @@ async function loadPlayerData() {
 }
 
 async function savePlayerData() {
-  if (!state.user || !supabase) return;
-  await supabase.from('players').upsert({
-    user_id: state.user.id,
-    sats: state.sats,
-    level: state.level,
-    rate: state.rate,
-    cost: state.cost,
+  if (!gameState.user || !supabaseClient) return;
+  await supabaseClient.from('players').upsert({
+    user_id: gameState.user.id,
+    sats: gameState.sats,
+    level: gameState.level,
+    rate: gameState.rate,
+    cost: gameState.cost,
     updated_at: new Date().toISOString()
   }, { onConflict: 'user_id' });
 }

@@ -8,11 +8,32 @@
 </head>
 <body>
 
+<div id="authScreen" class="authScreen">
+    <div class="authBox">
+        <h1>IDLE SATS</h1>
+        <p>Build your virtual mining empire</p>
+
+        <input id="email" type="email" placeholder="Email">
+        <input id="password" type="password" placeholder="Password">
+
+        <button id="signup" class="wide">CREATE ACCOUNT</button>
+        <button id="login" class="wide">LOGIN</button>
+
+        <div id="authStatus" class="status"></div>
+    </div>
+</div>
+
+<div id="gameScreen" class="gameScreen">
+
 <div class="game">
 
 <header>
 <h1>IDLE SATS</h1>
 <p>Build your virtual mining empire</p>
+<div class="account">
+<span id="userEmail"></span>
+<button id="logout">LOGOUT</button>
+</div>
 </header>
 
 <section class="balance">
@@ -83,6 +104,10 @@ Virtual sats have no cash value.
 </div>
 </div>
 
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="game.js"></script>
+
 </body>
 </html>

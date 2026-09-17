@@ -1,46 +1,57 @@
-// 1. SUPABASE CONFIGURATION
+// 1. SUPABASE INITIALIZATION
 const SUPABASE_URL = 'https://jzzzzeqphxwvrlqwiget.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imppenp6ZXFwaHh3dnJscXdpZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTQ3ODEsImV4cCI6MjEwNTIzMDc4MX0.WdBYOYAXovbLllH9MEoBsNjcYmOQ6wxV4unOWzbEMAc';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 2. GAME STATE
+// 2. STATE & VARIABLES
 let state = { user: null, sats: 0, level: 1, rate: 1, cost: 50 };
 
-// 3. DOM ELEMENTS
-const authScreen = document.getElementById('authScreen');
-const gameScreen = document.getElementById('gameScreen');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const signupBtn = document.getElementById('signup');
-const loginBtn = document.getElementById('login');
-const logoutBtn = document.getElementById('logout');
-const authStatus = document.getElementById('authStatus');
-const userEmailSpan = document.getElementById('userEmail');
+let authScreen, gameScreen, emailInput, passwordInput, signupBtn, loginBtn, logoutBtn, authStatus, userEmailSpan;
+let satsDisplay, rateDisplay, levelDisplay, costDisplay;
+let upgradeBtn, mineBtn, rewardBtn, dailyBtn, resetBtn;
+let adOverlay, closeAdBtn, adStatus, offlineDisplay, progressBar;
 
-const satsDisplay = document.getElementById('sats');
-const rateDisplay = document.getElementById('rate');
-const levelDisplay = document.getElementById('level');
-const productionDisplay = document.getElementById('production');
-const costDisplay = document.getElementById('cost');
-
-const upgradeBtn = document.getElementById('upgrade');
-const mineBtn = document.getElementById('mine');
-const rewardBtn = document.getElementById('reward');
-const dailyBtn = document.getElementById('daily');
-const resetBtn = document.getElementById('reset');
-
-const adOverlay = document.getElementById('adOverlay');
-const closeAdBtn = document.getElementById('closeAd');
-const adStatus = document.getElementById('adStatus');
-const offlineDisplay = document.getElementById('offline');
-const progressBar = document.getElementById('progress');
-
-// 4. INITIALIZATION
+// 3. INITIALIZATION
 window.addEventListener('DOMContentLoaded', async () => {
+  bindElements();
   setupEventListeners();
+  
   const { data: { session } } = await supabase.auth.getSession();
-  if (session) { handleLoginSuccess(session.user); } else { showAuthScreen(); }
+  if (session && session.user) {
+    handleLoginSuccess(session.user);
+  } else {
+    showAuthScreen();
+  }
 });
+
+function bindElements() {
+  authScreen = document.getElementById('authScreen');
+  gameScreen = document.getElementById('gameScreen');
+  emailInput = document.getElementById('email');
+  passwordInput = document.getElementById('password');
+  signupBtn = document.getElementById('signup');
+  loginBtn = document.getElementById('login');
+  logoutBtn = document.getElementById('logout');
+  authStatus = document.getElementById('authStatus');
+  userEmailSpan = document.getElementById('userEmail');
+
+  satsDisplay = document.getElementById('sats');
+  rateDisplay = document.getElementById('rate');
+  levelDisplay = document.getElementById('level');
+  costDisplay = document.getElementById('cost');
+
+  upgradeBtn = document.getElementById('upgrade');
+  mineBtn = document.getElementById('mine');
+  rewardBtn = document.getElementById('reward');
+  dailyBtn = document.getElementById('daily');
+  resetBtn = document.getElementById('reset');
+
+  adOverlay = document.getElementById('adOverlay');
+  closeAdBtn = document.getElementById('closeAd');
+  adStatus = document.getElementById('adStatus');
+  offlineDisplay = document.getElementById('offline');
+  progressBar = document.getElementById('progress');
+}
 
 function setupEventListeners() {
   signupBtn.addEventListener('click', handleSignUp);
@@ -56,28 +67,38 @@ function setupEventListeners() {
   closeAdBtn.addEventListener('click', completeAd);
 }
 
-// 5. AUTHENTICATION LOGIC
+// 4. AUTHENTICATION
 async function handleSignUp() {
   const email = emailInput.value.trim();
   const password = passwordInput.value.trim();
-  if (!email || !password) { authStatus.innerText = 'Please enter both email and password.'; return; }
+  if (!email || !password) { authStatus.innerText = 'Enter email & password.'; return; }
   authStatus.innerText = 'Creating account...';
+  
   const { data, error } = await supabase.auth.signUp({ email, password });
-  if (error) { authStatus.innerText = 'Error: ' + error.message; }
-  else if (data.user) {
-    if (data.session === null) { authStatus.innerText = 'Account created! Check email to confirm or log in.'; }
-    else { handleLoginSuccess(data.user); }
+  if (error) { 
+    authStatus.innerText = 'Error: ' + error.message; 
+  } else if (data.user) {
+    if (data.session === null) {
+      authStatus.innerText = 'Created! Disable email confirmation in Supabase if login fails.';
+    } else {
+      handleLoginSuccess(data.user);
+    }
   }
 }
 
 async function handleLogin() {
   const email = emailInput.value.trim();
   const password = passwordInput.value.trim();
-  if (!email || !password) { authStatus.innerText = 'Please enter both email and password.'; return; }
+  if (!email || !password) { authStatus.innerText = 'Enter email & password.'; return; }
   authStatus.innerText = 'Logging in...';
+  
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) { authStatus.innerText = 'Login failed: ' + error.message; }
-  else if (data.user) { authStatus.innerText = ''; handleLoginSuccess(data.user); }
+  if (error) { 
+    authStatus.innerText = 'Login failed: ' + error.message; 
+  } else if (data.user) {
+    authStatus.innerText = '';
+    handleLoginSuccess(data.user);
+  }
 }
 
 async function handleLogout() {
@@ -96,15 +117,15 @@ function handleLoginSuccess(user) {
   loadPlayerData();
   setInterval(gameLoop, 1000);
   setInterval(animateProgressBar, 100);
-  setInterval(savePlayerData, 20000);
+  setInterval(savePlayerData, 10000);
 }
 
 function showAuthScreen() {
-  authScreen.style.display = 'flex';
+  authScreen.style.display = 'block';
   gameScreen.style.display = 'none';
 }
 
-// 6. GAMEPLAY
+// 5. GAME ENGINE
 function gameLoop() { state.sats += state.rate; updateUI(); }
 
 let progressWidth = 0;
@@ -133,34 +154,32 @@ function claimDailyBonus() {
 }
 
 function resetGame() {
-  if (confirm('Reset game progress?')) {
+  if (confirm('Reset all progress?')) {
     state.sats = 0; state.level = 1; state.rate = 1; state.cost = 50;
-    dailyBtn.disabled = false; dailyBtn.innerText = 'CLAIM 100 SATS';
+    dailyBtn.disabled = false; dailyBtn.innerText = '?? Claim 100 Daily Sats';
     updateUI(); savePlayerData();
   }
 }
 
-// 7. ADS
-function showAd() { adOverlay.style.display = 'flex'; adStatus.innerText = 'Ad in progress...'; }
+function showAd() { adOverlay.style.display = 'flex'; }
 function completeAd() {
   adOverlay.style.display = 'none';
   state.sats += 50;
-  adStatus.innerText = 'Earned +50 Sats from watching ad!';
   updateUI(); savePlayerData();
 }
 
-// 8. UI & DATABASE
+// 6. DATABASE SYNC
 function updateUI() {
   satsDisplay.innerText = Math.floor(state.sats);
   rateDisplay.innerText = state.rate;
   levelDisplay.innerText = state.level;
-  productionDisplay.innerText = state.rate;
   costDisplay.innerText = state.cost;
 }
 
 async function loadPlayerData() {
   if (!state.user) return;
-  const { data } = await supabase.from('players').select('*').eq('user_id', state.user.id).single();
+  const { data, error } = await supabase.from('players').select('*').eq('user_id', state.user.id).single();
+  
   if (data) {
     state.sats = data.sats || 0;
     state.level = data.level || 1;
@@ -171,10 +190,12 @@ async function loadPlayerData() {
       if (secondsOffline > 10) {
         const offlineEarnings = secondsOffline * state.rate;
         state.sats += offlineEarnings;
-        offlineDisplay.innerText = 'Welcome back! Earned ' + offlineEarnings + ' sats while offline.';
+        offlineDisplay.innerText = 'Earned ' + offlineEarnings + ' sats while offline!';
       }
     }
-  } else { await savePlayerData(); }
+  } else {
+    await savePlayerData();
+  }
   updateUI();
 }
 

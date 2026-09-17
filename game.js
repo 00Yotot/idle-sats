@@ -1,6 +1,6 @@
 // CONFIGURATION
 const SUPABASE_URL = 'https://jzzzzeqphxwvrlqwiget.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imppenp6ZXFwaHh3dnJscXdpZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTQ3ODEsImV4cCI6MjEwNTIzMDc4MX0.WdBYOYAXovbLllH9MEoBsNjcYmOQ6wxV4unOWzbEMAc';
+const SUPABASE_ANON_KEY = 'sb_publishable_YRTibpwfa4SgJ1M1HCyU-w_T8utBcPy';
 
 // Memory Storage Adapter to bypass Browser Tracking Prevention
 const memoryStorage = (() => {

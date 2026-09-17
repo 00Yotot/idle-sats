@@ -1,6 +1,6 @@
 // 1. SUPABASE CONFIGURATION
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://jzzzzeqphxwvrlqwiget.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imppenp6ZXFwaHh3dnJscXdpZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTQ3ODEsImV4cCI6MjEwNTIzMDc4MX0.WdBYOYAXovbLllH9MEoBsNjcYmOQ6wxV4unOWzbEMAc';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // 2. GAME STATE
@@ -60,12 +60,12 @@ function setupEventListeners() {
 async function handleSignUp() {
   const email = emailInput.value.trim();
   const password = passwordInput.value.trim();
-  if (!email || !password) { authStatus.innerText = "Please enter both email and password."; return; }
-  authStatus.innerText = "Creating account...";
+  if (!email || !password) { authStatus.innerText = 'Please enter both email and password.'; return; }
+  authStatus.innerText = 'Creating account...';
   const { data, error } = await supabase.auth.signUp({ email, password });
-  if (error) { authStatus.innerText = "Error: " + error.message; }
+  if (error) { authStatus.innerText = 'Error: ' + error.message; }
   else if (data.user) {
-    if (data.session === null) { authStatus.innerText = "Account created! Check email to confirm or log in."; }
+    if (data.session === null) { authStatus.innerText = 'Account created! Check email to confirm or log in.'; }
     else { handleLoginSuccess(data.user); }
   }
 }
@@ -73,11 +73,11 @@ async function handleSignUp() {
 async function handleLogin() {
   const email = emailInput.value.trim();
   const password = passwordInput.value.trim();
-  if (!email || !password) { authStatus.innerText = "Please enter both email and password."; return; }
-  authStatus.innerText = "Logging in...";
+  if (!email || !password) { authStatus.innerText = 'Please enter both email and password.'; return; }
+  authStatus.innerText = 'Logging in...';
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) { authStatus.innerText = "Login failed: " + error.message; }
-  else if (data.user) { authStatus.innerText = ""; handleLoginSuccess(data.user); }
+  if (error) { authStatus.innerText = 'Login failed: ' + error.message; }
+  else if (data.user) { authStatus.innerText = ''; handleLoginSuccess(data.user); }
 }
 
 async function handleLogout() {
@@ -121,31 +121,31 @@ function buyUpgrade() {
     state.cost = Math.floor(state.cost * 1.5);
     updateUI();
     savePlayerData();
-  } else { alert("Not enough sats!"); }
+  } else { alert('Not enough sats!'); }
 }
 
 function claimDailyBonus() {
   state.sats += 100;
   dailyBtn.disabled = true;
-  dailyBtn.innerText = "CLAIMED TODAY";
+  dailyBtn.innerText = 'CLAIMED TODAY';
   updateUI();
   savePlayerData();
 }
 
 function resetGame() {
-  if (confirm("Reset game progress?")) {
+  if (confirm('Reset game progress?')) {
     state.sats = 0; state.level = 1; state.rate = 1; state.cost = 50;
-    dailyBtn.disabled = false; dailyBtn.innerText = "CLAIM 100 SATS";
+    dailyBtn.disabled = false; dailyBtn.innerText = 'CLAIM 100 SATS';
     updateUI(); savePlayerData();
   }
 }
 
 // 7. ADS
-function showAd() { adOverlay.style.display = 'flex'; adStatus.innerText = "Ad in progress..."; }
+function showAd() { adOverlay.style.display = 'flex'; adStatus.innerText = 'Ad in progress...'; }
 function completeAd() {
   adOverlay.style.display = 'none';
   state.sats += 50;
-  adStatus.innerText = "Earned +50 Sats from watching ad!";
+  adStatus.innerText = 'Earned +50 Sats from watching ad!';
   updateUI(); savePlayerData();
 }
 
@@ -171,7 +171,7 @@ async function loadPlayerData() {
       if (secondsOffline > 10) {
         const offlineEarnings = secondsOffline * state.rate;
         state.sats += offlineEarnings;
-        offlineDisplay.innerText = Welcome back! Earned  sats while offline (s).;
+        offlineDisplay.innerText = 'Welcome back! Earned ' + offlineEarnings + ' sats while offline.';
       }
     }
   } else { await savePlayerData(); }

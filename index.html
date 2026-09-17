@@ -27,8 +27,8 @@
     <input type="email" id="email" placeholder="Email Address">
     <input type="password" id="password" placeholder="Password (min 6 chars)">
     <br>
-    <button id="login">Log In</button>
-    <button id="signup">Sign Up</button>
+    <button onclick="handleLogin()">Log In</button>
+    <button onclick="handleSignUp()">Sign Up</button>
     <div id="authStatus"></div>
   </div>
 
@@ -36,7 +36,7 @@
   <div id="gameScreen" class="card" style="display: none;">
     <h2>? Idle Sats ?</h2>
     <p>Account: <span id="userEmail"></span></p>
-    <button id="logout">Log Out</button>
+    <button onclick="handleLogout()">Log Out</button>
     <hr>
     
     <div id="offline"></div>
@@ -47,24 +47,24 @@
 
     <div id="progress-container"><div id="progress"></div></div>
 
-    <button id="mine">?? Mine +10 Sats</button>
+    <button onclick="mineSats()">?? Mine +10 Sats</button>
     <br><br>
-    <button id="upgrade">? Upgrade Rig (Cost: <span id="cost">50</span> Sats)</button>
+    <button onclick="buyUpgrade()">? Upgrade Rig (Cost: <span id="cost">50</span> Sats)</button>
     <br><br>
-    <button id="daily">?? Claim 100 Daily Sats</button>
-    <button id="reward">?? Watch Ad for +50 Sats</button>
+    <button id="daily" onclick="claimDailyBonus()">?? Claim 100 Daily Sats</button>
+    <button onclick="showAd()">?? Watch Ad for +50 Sats</button>
     <br><br>
-    <button id="reset" style="background: #e53935; color: white;">Reset Game</button>
+    <button onclick="resetGame()" style="background: #e53935; color: white;">Reset Game</button>
   </div>
 
   <!-- AD OVERLAY -->
   <div id="adOverlay">
     <h2>Watching Advertisement...</h2>
     <p id="adStatus">Please wait 3 seconds...</p>
-    <button id="closeAd">Collect +50 Sats</button>
+    <button onclick="completeAd()">Collect +50 Sats</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="game.js" defer></script>
+  <script src="game.js"></script>
 </body>
 </html>

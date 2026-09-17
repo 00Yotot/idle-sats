@@ -2,7 +2,7 @@
 const SUPABASE_URL = 'https://jizzzeqphxwvrlqwiget.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_YRTibpwfa4SgJ1M1HCyU-w_T8utBcPy';
 
-// Memory Storage Adapter to bypass Browser Tracking Prevention
+// In-Memory Storage Adapter to bypass Browser Tracking Prevention
 const memoryStorage = (() => {
   let store = {};
   return {
@@ -23,11 +23,13 @@ window.onload = async () => {
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth: {
           storage: memoryStorage,
-          persistSession: false
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false
         }
       });
     } else {
-      alert("Supabase CDN failed to load. Check your adblocker or tracking protection settings.");
+      alert("Supabase script blocked by browser extension. Please disable tracking blockers for this site.");
     }
   } catch (err) {
     console.error("Init error:", err);
@@ -47,7 +49,7 @@ async function handleSignUp() {
   }
 
   if (!supabaseClient) {
-    alert("Database client is not ready. Try disabling tracking protection for this site.");
+    alert("Database client not ready. Try opening in a standard browser window.");
     return;
   }
 
@@ -60,14 +62,15 @@ async function handleSignUp() {
       authStatus.innerText = 'Error: ' + error.message; 
     } else if (data.user) {
       if (data.session === null) {
-        alert("Account created! Logging you in...");
+        alert("Account created! Logging in...");
         handleLogin();
       } else {
         handleLoginSuccess(data.user);
       }
     }
   } catch (err) {
-    alert("Unexpected error: " + err.message);
+    alert("Fetch failed. Please check your browser tracking prevention settings or try Chrome/Firefox.");
+    console.error("Fetch Error Detail:", err);
   }
 }
 
@@ -82,7 +85,7 @@ async function handleLogin() {
   }
 
   if (!supabaseClient) {
-    alert("Database client is not ready.");
+    alert("Database client not ready.");
     return;
   }
 
@@ -98,7 +101,7 @@ async function handleLogin() {
       handleLoginSuccess(data.user);
     }
   } catch (err) {
-    alert("Unexpected error: " + err.message);
+    alert("Fetch error: " + err.message);
   }
 }
 

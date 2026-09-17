@@ -1,5 +1,5 @@
 // CONFIGURATION
-const SUPABASE_URL = 'https://jzzzzeqphxwvrlqwiget.supabase.co';
+const SUPABASE_URL = 'https://jizzzeqphxwvrlqwiget.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_YRTibpwfa4SgJ1M1HCyU-w_T8utBcPy';
 
 // Memory Storage Adapter to bypass Browser Tracking Prevention

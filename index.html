@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Idle Sats</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="game">
+
+<header>
+<h1>IDLE SATS</h1>
+<p>Build your virtual mining empire</p>
+</header>
+
+<section class="balance">
+<div id="sats">0</div>
+<span>VIRTUAL SATS</span>
+<div class="rate"><b id="rate">1</b> sats / second</div>
+</section>
+
+<section class="miner">
+<div class="bitcoin">₿</div>
+<div class="minerInfo">
+<b>MINER ONLINE</b>
+<div class="bar"><div id="progress"></div></div>
+<small>Automatic production active</small>
+</div>
+</section>
+
+<section class="panel">
+<h2>MINING POWER</h2>
+<div class="upgradeRow">
+<div>
+<strong>LEVEL <span id="level">1</span></strong>
+<p>+<span id="production">1</span> sats/sec</p>
+</div>
+<button id="upgrade">
+UPGRADE
+<small><span id="cost">50</span> SATS</small>
+</button>
+</div>
+</section>
+
+<section class="panel">
+<h2>MANUAL MINING</h2>
+<button class="wide" id="mine">+10 SATS</button>
+</section>
+
+<section class="panel">
+<h2>REWARDED AD</h2>
+<p>Watch an optional advertisement to receive an in-game bonus.</p>
+<button class="wide ad" id="reward">WATCH REWARD AD</button>
+<div class="status" id="adStatus"></div>
+</section>
+
+<section class="panel">
+<h2>OFFLINE EARNINGS</h2>
+<div id="offline">No offline earnings</div>
+</section>
+
+<section class="panel">
+<h2>DAILY BONUS</h2>
+<button class="wide" id="daily">CLAIM 100 SATS</button>
+</section>
+
+<button class="reset" id="reset">RESET GAME</button>
+
+<footer>
+Virtual sats have no cash value.
+</footer>
+
+</div>
+
+<div id="adOverlay">
+<div class="adBox">
+<h2>ADVERTISEMENT</h2>
+<p>Ad placement ready</p>
+<div class="fakeAd">AD SPACE</div>
+<button id="closeAd">CLOSE</button>
+</div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
